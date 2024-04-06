@@ -7,7 +7,6 @@ from pydantic import BaseModel
 app = FastAPI()
 router = APIRouter()
 
-app.mount("/static", StaticFiles(directory="static", html=True), name="static")
 
 def run_scripts(script_path):
     process = subprocess.Popen([script_path], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -46,3 +45,4 @@ async def shut_down_desktop(item: Item):
 
 
 app.include_router(router)
+app.mount("/", StaticFiles(directory="build", html=True), name="static")
