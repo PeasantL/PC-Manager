@@ -1,26 +1,11 @@
 import subprocess
 from fastapi import FastAPI, APIRouter
 from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel
 
 
 app = FastAPI()
 router = APIRouter()
-
-"""
-from fastapi.middleware.cors import CORSMiddleware
-
-origins = [
-    "http://localhost:3000"
-]
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-"""
 
 app.mount("/static", StaticFiles(directory="static", html=True), name="static")
 
@@ -41,13 +26,23 @@ async def test():
     print("Hello World")
     return {"message": "Foo Bar"}
 
-@router.get("/start_desktop")
-async def start_desktop():
-    run_scripts('./start_desktop.sh')
-    
-@router.get("/shut_down_desktop")
-async def shut_down_desktop():
-    run_scripts('./shut_down_desktop.sh')
+class Item(BaseModel):
+    value: str
+
+@router.post("/start_desktop")
+async def start_desktop(item: Item):
+    if item.value == "ValidData":
+        run_scripts('./start_desktop.sh')
+    else:
+        return {"message": "Error: Invalid data recieved"}
+        
+
+@router.post("/shut_down_desktop")
+async def shut_down_desktop(item: Item):
+    if item.value == 'ValidData':
+        run_scripts('./shut_down_desktop.sh')
+    else:
+        return {"message": "Error: Invalid data recieved"}
 
 
 app.include_router(router)
