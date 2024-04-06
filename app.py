@@ -1,9 +1,28 @@
 import subprocess
 from fastapi import FastAPI, APIRouter
+from fastapi.staticfiles import StaticFiles
+
 
 app = FastAPI()
 router = APIRouter()
 
+"""
+from fastapi.middleware.cors import CORSMiddleware
+
+origins = [
+    "http://localhost:3000"
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+"""
+
+app.mount("/static", StaticFiles(directory="static", html=True), name="static")
 
 def run_scripts(script_path):
     process = subprocess.Popen([script_path], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -16,6 +35,11 @@ def run_scripts(script_path):
         print("Script execution failed")
         print(stderr.decode())
 
+
+@router.get("/test")
+async def test():
+    print("Hello World")
+    return {"message": "Foo Bar"}
 
 @router.get("/start_desktop")
 async def start_desktop():
