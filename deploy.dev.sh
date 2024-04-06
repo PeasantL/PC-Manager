@@ -11,11 +11,10 @@ npm run build
 if [ $? -eq 0 ]; then
     echo "Build successful. Starting to copy files..."
 
-    # Copy the build directory to the remote server
-    # Replace /path/to/build with the path to your build directory
-    # Replace user@remote_server with your actual username and server IP or domain
-    # Replace /path/on/remote/server with the actual path where you want to copy the build
     scp -r build pi@192.168.1.143:peasant-house
+    cd ..
+    #Copy the contents of server to the destination
+    scp -r server/* pi@192.168.1.143:peasant-house 
 
     if [ $? -eq 0 ]; then
         echo "Files copied successfully."
