@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Navigate to your project directory, replace /path/to/your/project with the actual path
-cd ../front
+cd ./front
 
 # Run the build command
 echo "Starting build..."
