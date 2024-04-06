@@ -9,20 +9,15 @@ router = APIRouter()
 
 
 def run_scripts(script_path):
-    process = subprocess.Popen([script_path], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    process = subprocess.Popen(script_path, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     stdout, stderr = process.communicate()
 
-    if process.returncode == 0:
-        print("Script executed successfully")
-        print(stdout.decode())
-    else:
-        print("Script execution failed")
-        print(stderr.decode())
-
+    return process.returncode
 
 @router.get("/test")
 async def test():
     print("Hello World")
+    check_alive("192.168.1.107")
     return {"message": "Foo Bar"}
 
 class Item(BaseModel):
@@ -43,6 +38,10 @@ async def shut_down_desktop(item: Item):
     else:
         return {"message": "Error: Invalid data recieved"}
 
+@router.get("/ping")
+async def ping():
+    ip = "192.168.1.107"
+    return {"detail": run_scripts(['./check_ip.sh', str(ip)])}
 
 app.include_router(router)
 app.mount("/", StaticFiles(directory="build", html=True), name="static")
