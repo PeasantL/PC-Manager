@@ -17,7 +17,6 @@ def run_scripts(script_path):
 @router.get("/test")
 async def test():
     print("Hello World")
-    check_alive("192.168.1.107")
     return {"message": "Foo Bar"}
 
 class Item(BaseModel):
