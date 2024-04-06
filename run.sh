@@ -12,4 +12,4 @@ fi
 echo "Checking Dependancies"
 pip install -r requirements.txt
 echo "Running Server"
-uvicorn app:app --reload --host 0.0.0.0
+uvicorn app:app --reload --host 0.0.0.0 --port 80
