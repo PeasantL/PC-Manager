@@ -11,7 +11,7 @@ export default function PanelScripts() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await fetch('http://peasant.local/retrive_misc_script');
+                const response = await fetch(process.env.REACT_APP_BACKEND_URL + '/retrive_misc_script');
                 const result = await response.json();
                 setData(result);
             } catch (error) {

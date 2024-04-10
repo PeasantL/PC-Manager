@@ -7,7 +7,7 @@ import './Panel.component.css'
 
 export default function PanelPowerControls() {
 
-    const data = usePing('http://peasant.local/ping');
+    const data = usePing(process.env.REACT_APP_BACKEND_URL + '/ping');
 
     return(
     <Container className="panel">
