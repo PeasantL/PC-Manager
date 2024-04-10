@@ -2,6 +2,9 @@ import subprocess
 from fastapi import FastAPI, APIRouter
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
+from file_io import read_json
+
+JSON_PATH = './misc_scripts.json'
 
 
 app = FastAPI()
@@ -21,6 +24,11 @@ async def test():
 
 class Item(BaseModel):
     value: str
+
+@router.get("/retrive_misc_script") 
+async def retrive_misc_scripts():
+    script_data = read_json(JSON_PATH)
+    return script_data 
 
 @router.post("/start_desktop")
 async def start_desktop(item: Item):
@@ -43,4 +51,4 @@ async def ping():
     return {"detail": run_scripts(['./check_ip.sh', str(ip)])}
 
 app.include_router(router)
-app.mount("/", StaticFiles(directory="build", html=True), name="static")
+#app.mount("/", StaticFiles(directory="build", html=True), name="static")
