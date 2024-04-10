@@ -2,6 +2,7 @@ import React from "react";
 import { useEffect, useState } from "react";
 import { Container , Card } from 'react-bootstrap';
 import ButtonBasic from "./ButtonBasic";
+import { runScript } from "../utils/api";
 import './Panel.component.css'
 
 export default function PanelScripts() {
@@ -28,7 +29,7 @@ export default function PanelScripts() {
             <Card.Body>
                 <div className="d-grid gap-2">
                    {data && Object.keys(data).map((key, index) => (
-                        <ButtonBasic text={key} />
+                        <ButtonBasic text={key} key={index} onClick={() => runScript(key)} />
                    ))}
                 </div>
             </Card.Body>

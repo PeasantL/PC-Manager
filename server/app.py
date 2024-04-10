@@ -5,6 +5,7 @@ from pydantic import BaseModel
 from file_io import read_json
 from fastapi.middleware.cors import CORSMiddleware
 import os
+from desktop_power_control import ssh_shutdown, WOL
 
 JSON_PATH = './misc_scripts.json'
 
@@ -22,7 +23,7 @@ if os.getenv('APP_MODE') == 'dev':
     )
 
 def run_scripts(script_path):
-    process = subprocess.Popen(script_path, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    process = subprocess.Popen(script_path, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     stdout, stderr = process.communicate()
 
     return process.returncode
@@ -35,15 +36,28 @@ async def test():
 class Item(BaseModel):
     value: str
 
+#how dangerous is it for people to know where your scripts are stored?
 @router.get("/retrive_misc_script") 
 async def retrive_misc_scripts():
     script_data = read_json(JSON_PATH)
     return script_data 
 
+
+@router.post("/run_misc_script")
+async def run_misc_script(item:Item):
+
+    script_data = read_json(JSON_PATH)
+
+    if item.value in script_data:
+        run_scripts(script_data[item.value])
+    else:
+        return {"message": "Error: Invalid script name recieved"}
+
+
 @router.post("/start_desktop")
 async def start_desktop(item: Item):
     if item.value == "ValidData":
-        run_scripts('./start_desktop.sh')
+        WOL()
     else:
         return {"message": "Error: Invalid data recieved"}
         
@@ -51,7 +65,7 @@ async def start_desktop(item: Item):
 @router.post("/shut_down_desktop")
 async def shut_down_desktop(item: Item):
     if item.value == 'ValidData':
-        run_scripts('./shut_down_desktop.sh')
+        ssh_shutdown()
     else:
         return {"message": "Error: Invalid data recieved"}
 

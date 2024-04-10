@@ -13,11 +13,11 @@ echo "Checking Dependancies"
 pip install -r requirements.txt
 echo "Running Server"
 
-if [ "$1" == "-dev" ]; then
+if [ "$1" == "--dev" ]; then
     export APP_MODE=dev
     # Run Uvicorn with hot reload and more CORS options for development
-    uvicorn app:app --reload --host 0.0.0.0 --port 8000 
+    uvicorn app:app --reload --host 0.0.0.0 --port 8001 
 else
     # Run Uvicorn normally without hot reload for production
-    uvicorn app:app --host 0.0.0.0 --port 8000
+    uvicorn app:app --host 0.0.0.0 --port 8001
 fi
