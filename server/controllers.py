@@ -2,7 +2,10 @@ import subprocess
 import toml
 
 # Load config from TOML file
-config = toml.load('config.toml')
+try:
+    config = toml.load('config.toml')
+except FileNotFoundError:
+    raise FileNotFoundError("The configuration file 'config.toml' was not found. Edit config_example to continue.")
 
 # Use the config variables
 key_path = config['key_paths']['ssh_key']

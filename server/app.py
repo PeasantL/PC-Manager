@@ -1,4 +1,3 @@
-import subprocess
 from fastapi import FastAPI, APIRouter
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel

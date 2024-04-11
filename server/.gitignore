@@ -2,3 +2,4 @@
 __pycache__
 build
 misc_scripts.json
+config.toml
