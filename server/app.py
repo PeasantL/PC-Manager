@@ -5,7 +5,7 @@ from pydantic import BaseModel
 from file_io import read_json
 from fastapi.middleware.cors import CORSMiddleware
 import os
-from desktop_power_control import ssh_shutdown, WOL
+from controllers import ssh_shutdown, WOL, run_script
 
 JSON_PATH = './misc_scripts.json'
 
@@ -21,12 +21,6 @@ if os.getenv('APP_MODE') == 'dev':
         allow_methods=["*"],
         allow_headers=["*"],
     )
-
-def run_scripts(script_path):
-    process = subprocess.Popen(script_path, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    stdout, stderr = process.communicate()
-
-    return process.returncode
 
 @router.get("/test")
 async def test():
@@ -49,7 +43,7 @@ async def run_misc_script(item:Item):
     script_data = read_json(JSON_PATH)
 
     if item.value in script_data:
-        run_scripts(script_data[item.value])
+        run_script(script_data[item.value])
     else:
         return {"message": "Error: Invalid script name recieved"}
 
@@ -68,6 +62,12 @@ async def shut_down_desktop(item: Item):
         ssh_shutdown()
     else:
         return {"message": "Error: Invalid data recieved"}
+
+def run_scripts(script_path):
+    process = subprocess.Popen(script_path, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    stdout, stderr = process.communicate()
+
+    return process.returncode
 
 @router.get("/ping")
 async def ping():

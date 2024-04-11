@@ -8,7 +8,17 @@ export default function usePing(url) {
             try {
                 const response = await fetch(url);
                 const result = await response.json();
-                setData(result);
+
+                if (result["detail"] === null) {
+                    setData("Checking Connection");
+                }
+                else if (result["detail"] === 1) {
+                    setData("Online");
+                }
+                else if (result["detail"] === 0) {
+                    setData("Offline");
+                }
+
             } catch (error) {
                 //console.error('Error fetching data:', error);
             }

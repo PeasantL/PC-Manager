@@ -19,5 +19,5 @@ if [ "$1" == "--dev" ]; then
     uvicorn app:app --reload --host 0.0.0.0 --port 8001 
 else
     # Run Uvicorn normally without hot reload for production
-    uvicorn app:app --host 0.0.0.0 --port 8001
+    uvicorn app:app --host 0.0.0.0 --port 80
 fi

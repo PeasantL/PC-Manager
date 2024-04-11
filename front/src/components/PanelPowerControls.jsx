@@ -14,7 +14,7 @@ export default function PanelPowerControls() {
         <Card>
             <Card.Header>Power Controls</Card.Header>
             <Card.Body>
-                <Card.Title>Computer Status: {JSON.stringify(data, null, 2)}</Card.Title>
+                <Card.Title>Computer Status: {data}</Card.Title>
                 <div className="d-grid gap-2">
                     <ButtonBasic text="Shut Down Desktop" onClick={shutDownDesktop} />
                     <ButtonBasic text="Start Desktop" onClick={startDesktop} />
