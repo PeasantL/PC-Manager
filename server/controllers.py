@@ -41,3 +41,10 @@ def run_script(script_string):
 
     result = subprocess.run(ssh_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
     return result.returncode, result.stdout, result.stderr
+
+
+def fetch_ping(script_path):
+    process = subprocess.Popen(script_path, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    stdout, stderr = process.communicate()
+
+    return process.returncode

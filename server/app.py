@@ -5,7 +5,7 @@ from pydantic import BaseModel
 from file_io import read_json
 from fastapi.middleware.cors import CORSMiddleware
 import os
-from controllers import ssh_shutdown, WOL, run_script
+from controllers import ssh_shutdown, WOL, run_script, fetch_ping
 
 JSON_PATH = './misc_scripts.json'
 
@@ -63,16 +63,10 @@ async def shut_down_desktop(item: Item):
     else:
         return {"message": "Error: Invalid data recieved"}
 
-def run_scripts(script_path):
-    process = subprocess.Popen(script_path, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    stdout, stderr = process.communicate()
-
-    return process.returncode
-
 @router.get("/ping")
 async def ping():
     ip = "192.168.1.107"
-    return {"detail": run_scripts(['./check_ip.sh', str(ip)])}
+    return {"detail": fetch_ping(['./check_ip.sh', str(ip)])}
 
 app.include_router(router)
 
