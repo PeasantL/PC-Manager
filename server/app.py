@@ -65,8 +65,7 @@ async def shut_down_desktop(item: Item):
 
 @router.get("/ping")
 async def ping():
-    ip = "192.168.1.107"
-    return {"detail": fetch_ping(['./check_ip.sh', str(ip)])}
+    return {"detail": fetch_ping('./check_ip.sh')}
 
 app.include_router(router)
 

@@ -1,0 +1,9 @@
+# config.toml
+
+[key_paths]
+ssh_key = "../.ssh/pi_ssh"
+
+[network]
+user = "peasantl"
+host = "192.168.1.107"
+host_mac = "18:C0:4D:89:82:94"
