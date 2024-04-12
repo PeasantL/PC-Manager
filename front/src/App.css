@@ -3,5 +3,7 @@
     width: 60%; /* Takes up half of the page width */
     margin: auto;
     text-align: center; /* Optional: Center the text inside the container */
+    margin-top:15px;
+    margin-bottom:15px;
   }
   

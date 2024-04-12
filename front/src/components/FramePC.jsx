@@ -7,7 +7,7 @@ import { Card, Row } from 'react-bootstrap'
 export default function FramePC() {
   return (
     <Card>
-      <Card.Header>PC Settings</Card.Header>
+      <Card.Header>PC</Card.Header>
       <Card.Body>
         <Row>
           <PanelPowerControls />
