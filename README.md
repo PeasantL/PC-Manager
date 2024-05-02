@@ -1,6 +1,13 @@
 Control Panel for various devices. Run of a Raspberry Pi. Currently being prototyped.
 
 Todo:
+Bug
+- Sometimes the power on script does not work
+
+Server
+- Incorporate fast-auth-template
+- Split server command based on fast-auth-template
+
 
 - Implement GPU Power Controls
 - ~~Bugfix StrictHostChecking~~
