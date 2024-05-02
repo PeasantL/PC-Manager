@@ -21,25 +21,22 @@ def ssh_shutdown():
         f"{user}@{host}",
         "sudo shutdown now"
     ]
-
     result = subprocess.run(ssh_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
     return result.returncode, result.stdout, result.stderr
 
 
 def WOL():
-    command = [
+    ssh_command = [
         "wakeonlan",
         "-i", host,
         host_mac
     ]
-
-    result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    result = subprocess.run(ssh_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
     return result.returncode, result.stdout, result.stderr
 
 
 def run_script(script_string):
     ssh_command = f"ssh -o StrictHostKeyChecking=no -i {key_path} -X {user}@{host} '{script_string}'"
-
     result = subprocess.run(ssh_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
     return result.returncode, result.stdout, result.stderr
 
@@ -48,5 +45,17 @@ def fetch_ping(script_path):
     command = f"{script_path} {host}"
     process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     stdout, stderr = process.communicate()
-
     return process.returncode
+
+def check_host_reachable():
+    ssh_command = [
+        "ping",
+        "-c", "1",
+        "-W", "0.1",
+        host
+    ]
+    try:
+        subprocess.run(ssh_command, check=True, stdout=subprocess.DEVNULL)
+        return 0  # Host is reachable
+    except subprocess.CalledProcessError:
+        return 1  # Host is not reachable

@@ -1,3 +1,11 @@
+############################################################################
+#
+# This file creates and manages the scripts paths to be listed for 
+# execution within misc scripts section.  
+# It has to be manually called.
+#
+############################################################################
+
 import os
 import argparse
 import pprint

@@ -4,7 +4,7 @@ from pydantic import BaseModel
 from file_io import read_json
 from fastapi.middleware.cors import CORSMiddleware
 import os
-from controllers import ssh_shutdown, WOL, run_script, fetch_ping
+from controllers import ssh_shutdown, WOL, run_script, check_host_reachable
 
 JSON_PATH = './misc_scripts.json'
 
@@ -64,7 +64,7 @@ async def shut_down_desktop(item: Item):
 
 @router.get("/ping")
 async def ping():
-    return {"detail": fetch_ping('./check_ip.sh')}
+    return {"detail": check_host_reachable()}
 
 app.include_router(router)
 
