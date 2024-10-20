@@ -10,10 +10,10 @@ npm run build
 if [ $? -eq 0 ]; then
     echo "Build successful. Starting to copy files..."
 
-    scp -r build pi@192.168.1.143:peasant-house
+    scp -r build peasantl@192.168.0.108:pc-manager-server
     cd ..
     #Copy the contents of server to the destination
-    scp -r server/* pi@192.168.1.143:peasant-house 
+    scp -r server/* peasantl@192.168.0.108:pc-manager-server
 
     if [ $? -eq 0 ]; then
         echo "Files copied successfully."

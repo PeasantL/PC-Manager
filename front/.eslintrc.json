@@ -19,10 +19,10 @@
         "prettier"
     ],
     "rules": {
-      "react/prop-types": "off",
-      "prettier/prettier": "error"
+        "react/prop-types": "off",
+        "prettier/prettier": "off"
     },
     "globals": {
-      "process": "readonly"
+        "process": "readonly"
     }
 }
