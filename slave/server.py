@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import subprocess
 import os
+import socket
 
 app = FastAPI()
 
@@ -13,6 +14,11 @@ class ScriptRequest(BaseModel):
 @app.get("/test")
 async def retrieve_misc_scripts():
     return "Hello World"
+
+@app.get("/get_hostname")
+def get_hostname():
+    hostname = socket.gethostname()
+    return {"hostname": hostname}
 
 @app.get("/ping")
 async def ping():

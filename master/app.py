@@ -52,7 +52,7 @@ async def get_hello_world():
 async def ping_slave_server():
     try:
         # Set a custom timeout (e.g., 2 seconds)
-        timeout = httpx.Timeout(2.0)  # Timeout set to 2 seconds
+        timeout = httpx.Timeout(5.0)  # Timeout set to 2 seconds
 
         # Make an asynchronous request to the slave server with the custom timeout
         async with httpx.AsyncClient(timeout=timeout) as client:
