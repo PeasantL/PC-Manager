@@ -27,7 +27,7 @@ export default function PanelScripts() {
       {data &&
         Object.keys(data).map((folder, index) => (
           <Card key={index} className="mb-3">
-            <Card.Header>{folder}</Card.Header>
+            <Card.Header>Scripts: {folder}</Card.Header>
             <Card.Body>
               <div className="d-grid gap-2">
                 {data[folder].map((script, scriptIndex) => (

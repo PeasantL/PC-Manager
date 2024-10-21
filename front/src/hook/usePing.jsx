@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 
 export default function usePing(url) {
-  const [data, setData] = useState(null)
+  const [status, setStatus] = useState(null)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -9,24 +9,22 @@ export default function usePing(url) {
         const response = await fetch(url)
         const result = await response.json()
 
-        if (result['detail'] === null) {
-          setData('Checking Connection')
-        } else if (result['detail'] === 1) {
-          setData('Online')
+        if (result['detail'] === 1) {
+          setStatus(1)
         } else if (result['detail'] === 0) {
-          setData('Offline')
+          setStatus(0)
         }
       } catch (error) {
-        //console.error('Error fetching data:', error);
+        // Handle error silently or log it if needed
       }
     }
 
     fetchData() // Fetch immediately on component mount
 
-    const intervalId = setInterval(fetchData, 2000) // Fetch every two second
+    const intervalId = setInterval(fetchData, 5000) // Fetch every two seconds
 
     return () => clearInterval(intervalId) // Cleanup on component unmount
   }, [url]) // Dependency array with URL, so if the URL changes, the effect will re-run
 
-  return data
+  return status
 }

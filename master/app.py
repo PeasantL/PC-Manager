@@ -47,6 +47,17 @@ async def get_hello_world():
         except Exception as e:
             return {"message": f"Error: {e}"}
 
+@app.get("/get_hostname")
+async def get_hostname():
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.get(f"{MAIN_PC_URL}/get_hostname")
+            response.raise_for_status()
+            return response.json()
+    except httpx.HTTPStatusError as exc:
+        raise HTTPException(status_code=exc.response.status_code, detail=str(exc))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error contacting slave: {e}")
 
 @app.get("/ping")
 async def ping_slave_server():
