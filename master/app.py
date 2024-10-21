@@ -63,7 +63,7 @@ async def get_hostname():
 async def ping_slave_server():
     try:
         # Set a custom timeout (e.g., 2 seconds)
-        timeout = httpx.Timeout(5.0)  # Timeout set to 2 seconds
+        timeout = httpx.Timeout(2.0)  # Timeout set to 2 seconds
 
         # Make an asynchronous request to the slave server with the custom timeout
         async with httpx.AsyncClient(timeout=timeout) as client:
@@ -136,6 +136,18 @@ async def shut_down_desktop(item: Item):
     else:
         return {"message": "Error: Invalid data received"}
 
+@app.get("/get_vram_usage")
+async def get_vram_usage():
+    try:
+        async with httpx.AsyncClient() as client:
+            # Send a request to the slave PC to get VRAM usage
+            response = await client.get(f"{MAIN_PC_URL}/vram-usage")
+            response.raise_for_status()
+            return response.json()
+    except httpx.HTTPStatusError as exc:
+        raise HTTPException(status_code=exc.response.status_code, detail=str(exc))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error contacting slave: {e}")
 
 app.include_router(router)
 
