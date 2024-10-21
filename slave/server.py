@@ -1,12 +1,11 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import subprocess
-import json
 import os
 
 app = FastAPI()
 
-JSON_PATH = './misc_scripts.json'  # Update this to the actual path
+SCRIPTS_DIR = 'scripts'  # Update this to the actual path
 
 class ScriptRequest(BaseModel):
     script: str
@@ -14,6 +13,10 @@ class ScriptRequest(BaseModel):
 @app.get("/test")
 async def retrieve_misc_scripts():
     return "Hello World"
+
+@app.get("/ping")
+async def ping():
+    return {"detail": 1}  # Always returns online status
 
 def get_scripts_structure(base_dir):
     scripts_structure = {}
@@ -40,18 +43,18 @@ async def get_scripts():
 @app.post("/run_script")
 async def run_script(request: ScriptRequest):
     try:
-        # Read the JSON file to get the script paths
-        with open(JSON_PATH, 'r') as file:
-            script_data = json.load(file)
-        
-        # Find the script path by name
-        script_path = script_data.get(request.script)
-        if not script_path:
-            raise HTTPException(status_code=404, detail="Script not found.")
+        # Get the scripts structure
+        scripts_structure = get_scripts_structure(SCRIPTS_DIR)
 
-        # Check if the script file exists
-        if not os.path.isfile(script_path):
-            raise HTTPException(status_code=404, detail="Script file does not exist.")
+        # Search for the script within the scripts structure
+        script_path = None
+        for folder, scripts in scripts_structure.items():
+            if request.script in scripts:
+                script_path = os.path.join(SCRIPTS_DIR, folder, request.script)
+                break
+
+        if not script_path or not os.path.isfile(script_path):
+            raise HTTPException(status_code=404, detail="Script not found.")
 
         # Run the script
         result = subprocess.run(
@@ -81,4 +84,3 @@ async def shutdown():
             return {"error": result.stderr}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
