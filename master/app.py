@@ -12,11 +12,14 @@ import struct
 config = toml.load('config.toml')
 
 # Extract settings from the config file
-MAIN_PC_URL = config['network'].get('main_pc_url')
 SSH_KEY_PATH = config['key_paths'].get('ssh_key')
 USER = config['network'].get('user')
 HOST = config['network'].get('host')
 HOST_MAC = config['network'].get('host_mac')
+PORT = config['network'].get('port')
+
+# Construct MAIN_PC_URL dynamically
+MAIN_PC_URL = f"http://{HOST}:{PORT}"
 
 app = FastAPI()
 router = APIRouter()
