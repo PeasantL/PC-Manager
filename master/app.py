@@ -51,12 +51,12 @@ async def get_hello_world():
 class Item(BaseModel):
     value: str
 
-@router.get("/retrieve_misc_scripts")
+@router.get("/retrieve_scripts")
 async def retrieve_misc_scripts():
     # Fetch the script data from the main PC
     async with httpx.AsyncClient() as client:
         try:
-            response = await client.get(f"{MAIN_PC_URL}/retrieve_misc_scripts")
+            response = await client.get(f"{MAIN_PC_URL}/retrieve_scripts")
             response.raise_for_status()
             return response.json()
         except httpx.HTTPStatusError as e:
