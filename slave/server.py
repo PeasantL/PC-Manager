@@ -55,7 +55,19 @@ async def run_script(request: ScriptRequest):
 @app.post("/shutdown")
 async def shutdown():
     try:
-        subprocess.run(["sudo", "shutdown", "now"], check=True)
-        return {"detail": "Shutdown initiated"}
+        # Run the shutdown command as a subprocess
+        result = subprocess.run(
+            ["sudo", "shutdown", "now"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True
+        )
+
+        if result.returncode == 0:
+            return {"detail": "Shutdown initiated"}
+        else:
+            # Return the error message if the shutdown command fails
+            return {"error": result.stderr}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
