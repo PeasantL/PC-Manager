@@ -1,7 +1,9 @@
 #!/bin/bash
 
-# Remove the build folder in the current directory
-rm -rf ./build
+# Check if the build folder exists, then remove it
+if [ -d "./build" ]; then
+  rm -rf ./build
+fi
 
 # Navigate to the 'front' directory
 cd ../front || exit
