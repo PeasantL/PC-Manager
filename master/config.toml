@@ -1,7 +1,3 @@
-# config.toml
-
-# Example file, remove '_example' and edit
-
 [key_paths]
 ssh_key = "/home/peasantl/.ssh/nucky_access"
 
@@ -9,4 +5,4 @@ ssh_key = "/home/peasantl/.ssh/nucky_access"
 user = "peasantl"
 host = "192.168.0.107"
 host_mac = "18:C0:4D:89:82:94"
-main_pc_url = "http://<main_pc_ip>:<main_pc_port>"
+port = 7081
