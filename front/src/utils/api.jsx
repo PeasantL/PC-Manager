@@ -51,3 +51,17 @@ export function startDesktop() {
   .then(data => console.log('Message:', data.message))
   .catch(error => console.error('Error:', error));
 }
+
+export function fetchVramUsage() {
+  return fetch(process.env.REACT_APP_BACKEND_URL + '/get_vram_usage')
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      return response.json();
+    })
+    .catch(error => {
+      console.error('Error fetching VRAM usage:', error);
+      throw error; // Re-throw the error to handle it in the caller
+    });
+}
