@@ -48,6 +48,25 @@ async def get_hello_world():
             return {"message": f"Error: {e}"}
 
 
+@app.get("/ping")
+async def ping_slave_server():
+    try:
+        # Set a custom timeout (e.g., 2 seconds)
+        timeout = httpx.Timeout(2.0)  # Timeout set to 2 seconds
+
+        # Make an asynchronous request to the slave server with the custom timeout
+        async with httpx.AsyncClient(timeout=timeout) as client:
+            response = await client.get(f"{MAIN_PC_URL}/ping")
+
+        # If the response is successful (status code 200), the server is online
+        if response.status_code == 200:
+            return {"detail": 1}  # Online
+        else:
+            return {"detail": 0}  # Offline if not 200 response
+    except httpx.RequestError:
+        # If there is a request error (e.g., timeout, connection error), the server is offline
+        return {"detail": 0}  # Offline
+
 class Item(BaseModel):
     value: str
 
