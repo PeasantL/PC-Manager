@@ -4,11 +4,22 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import os
 import httpx
+import toml
+import socket
+import struct
+
+# Load configuration from config.toml
+config = toml.load('config.toml')
+
+# Extract settings from the config file
+MAIN_PC_URL = config['network'].get('main_pc_url')
+SSH_KEY_PATH = config['key_paths'].get('ssh_key')
+USER = config['network'].get('user')
+HOST = config['network'].get('host')
+HOST_MAC = config['network'].get('host_mac')
 
 app = FastAPI()
 router = APIRouter()
-
-MAIN_PC_URL = os.getenv('MAIN_PC_URL', 'http://<main_pc_ip>:<main_pc_port>')  # Set this to your main PC's IP/port
 
 # Development CORS settings
 if os.getenv('APP_MODE') == 'dev':
@@ -46,12 +57,24 @@ async def run_misc_script(item: Item):
         response = await client.post(f"{MAIN_PC_URL}/run_script", json={"script": item.value})
         return response.json()
 
+def wake_on_lan(mac_address: str):
+    """Send a Wake-on-LAN (WOL) packet to the specified MAC address."""
+    mac_bytes = bytes.fromhex(mac_address.replace(':', ''))
+    magic_packet = b'\xff' * 6 + mac_bytes * 16
+
+    # Send the packet to the broadcast address
+    with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+        sock.sendto(magic_packet, ('<broadcast>', 9))
+
 @router.post("/start_desktop")
 async def start_desktop(item: Item):
     if item.value == "ValidData":
-        async with httpx.AsyncClient() as client:
-            response = await client.post(f"{MAIN_PC_URL}/wol", json={"mac_address": "your_mac_address"})
-            return response.json()
+        try:
+            wake_on_lan(HOST_MAC)
+            return {"message": "WOL packet sent successfully"}
+        except Exception as e:
+            return {"message": f"Error sending WOL packet: {e}"}
     else:
         return {"message": "Error: Invalid data received"}
 
