@@ -34,9 +34,19 @@ if os.getenv('APP_MODE') == 'dev':
         allow_headers=["*"],
     )
 
-@router.get("/test")
-async def test():
-    return {"message": "Foo Bar"}
+@router.get("/get_hello_world")
+async def get_hello_world():
+    async with httpx.AsyncClient() as client:
+        try:
+            # Send a request to the slave server's /test endpoint
+            response = await client.get(f"{MAIN_PC_URL}/test")
+            response.raise_for_status()
+            return {"message": response.text}
+        except httpx.HTTPStatusError as e:
+            return {"message": f"Failed to fetch Hello World: {e}"}
+        except Exception as e:
+            return {"message": f"Error: {e}"}
+
 
 class Item(BaseModel):
     value: str
@@ -85,10 +95,17 @@ async def start_desktop(item: Item):
 async def shut_down_desktop(item: Item):
     if item.value == 'ValidData':
         async with httpx.AsyncClient() as client:
-            response = await client.post(f"{MAIN_PC_URL}/shutdown")
-            return response.json()
+            try:
+                response = await client.post(f"{MAIN_PC_URL}/shutdown")
+                response.raise_for_status()
+                return response.json()
+            except httpx.HTTPStatusError as e:
+                return {"message": f"Failed to initiate shutdown: {e}"}
+            except Exception as e:
+                return {"message": f"Error: {e}"}
     else:
         return {"message": "Error: Invalid data received"}
+
 
 app.include_router(router)
 
