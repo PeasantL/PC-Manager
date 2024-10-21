@@ -90,3 +90,17 @@ async def shutdown():
             return {"error": result.stderr}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    
+def get_vram_usage():
+    try:
+        # Run nvidia-smi command and capture the output
+        result = subprocess.check_output(['nvidia-smi', '--query-gpu=memory.used,memory.total', '--format=csv,noheader,nounits'])
+        # Decode the output from bytes to string and split the values
+        used, total = result.decode().strip().split(',')
+        return {"used_vram": int(used), "total_vram": int(total)}
+    except subprocess.CalledProcessError as e:
+        return {"error": "nvidia-smi command failed", "details": str(e)}
+
+@app.get("/vram-usage")
+async def vram_usage():
+    return get_vram_usage()

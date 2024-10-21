@@ -1,8 +1,6 @@
 #!/bin/bash
 
-# Turn off the primary large monitor
+# Turn off both monitors
 xrandr --output DP-2 --off
-
-# Reposition the portrait monitor
-xrandr --output HDMI-0 --rotate right --pos 0x0
+xrandr --output HDMI-0 --off
 
