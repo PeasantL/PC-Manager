@@ -15,14 +15,25 @@ class ScriptRequest(BaseModel):
 async def retrieve_misc_scripts():
     return "Hello World"
 
-@app.get("/retrieve_misc_scripts")
-async def retrieve_misc_scripts():
+def get_scripts_structure(base_dir):
+    scripts_structure = {}
+    for root, dirs, files in os.walk(base_dir):
+        # Get the relative folder path
+        rel_folder = os.path.relpath(root, base_dir)
+        
+        # Filter out non-script files, assuming .sh extension
+        scripts = [f for f in files if f.endswith('.sh')]
+
+        if scripts:
+            scripts_structure[rel_folder] = scripts
+
+    return scripts_structure
+
+@app.get("/retrieve_scripts")
+async def get_scripts():
     try:
-        with open(JSON_PATH, 'r') as file:
-            script_data = json.load(file)
-        return script_data
-    except FileNotFoundError:
-        raise HTTPException(status_code=404, detail="Script data not found.")
+        scripts = get_scripts_structure(SCRIPTS_DIR)
+        return scripts
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
