@@ -23,9 +23,9 @@ else
     echo "requirements.txt not found. Skipping installation."
 fi
 
-# Run the FastAPI server
-echo "Starting FastAPI server..."
-uvicorn server:app --reload
+# Run the FastAPI server on port 7081
+echo "Starting FastAPI server on port 7081..."
+uvicorn server:app --host 0.0.0.0 --port 7081 --reload
 
 # Deactivate the virtual environment after stopping the server
 deactivate
