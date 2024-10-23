@@ -22,11 +22,15 @@ export default function FramePC() {
       <Card.Header>{hostname}</Card.Header>
       <Card.Body>
         {data === 1 ? (
+          <Card.Title>Status: Online</Card.Title>
+        ) : (
+          <Card.Title>Status: Offline</Card.Title>
+        )}
+        <Row>
+          <PanelPowerControls />
+        </Row>
+        {data === 1 && (
           <>
-            <Card.Title>Status: Online</Card.Title>
-            <Row>
-              <PanelPowerControls />
-            </Row>
             <Row>
               <PanelScripts />
             </Row>
@@ -34,8 +38,6 @@ export default function FramePC() {
               <PanelGPU />
             </Row>
           </>
-        ) : (
-          <Card.Title>Status: Offline</Card.Title>
         )}
       </Card.Body>
     </Card>
