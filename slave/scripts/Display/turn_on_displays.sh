@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Set the display environment variables
+export DISPLAY=:0
+export XAUTHORITY=/run/user/$(id -u)/gdm/Xauthority
+
 # Turn on the primary large monitor with saved position and resolution
 xrandr --output DP-2 --mode 5120x1440 --rate 120 --primary --pos 0x0
 
