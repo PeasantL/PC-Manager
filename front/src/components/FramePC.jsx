@@ -3,25 +3,32 @@ import PanelPowerControls from './PanelPowerControls';
 import PanelScripts from './PanelScripts';
 import PanelGPU from './PanelGPU';
 import { Card, Row } from 'react-bootstrap';
-import usePing from '../hook/usePing';
+import useHealthCheck from '../hook/useHealthCheck';
 
 export default function FramePC() {
   const [hostname, setHostname] = useState('PC');
-  const data = usePing(process.env.REACT_APP_BACKEND_URL + '/ping');
+  const [os, setOs] = useState(null); // State for OS info
+  const status = useHealthCheck(process.env.REACT_APP_BACKEND_URL + '/health');
 
   useEffect(() => {
     // Fetch hostname when the component mounts
-    fetch(process.env.REACT_APP_BACKEND_URL + '/get_hostname')
+    fetch(process.env.REACT_APP_BACKEND_URL + '/system/hostname')
       .then(response => response.json())
-      .then(data => setHostname(data.hostname))
+      .then(data => setHostname(data.data.hostname))
       .catch(error => console.error('Error fetching hostname:', error));
+
+    // Fetch OS info when the component mounts
+    fetch(process.env.REACT_APP_BACKEND_URL + '/system/os')
+      .then(response => response.json())
+      .then(data => setOs(data.os))
+      .catch(error => console.error('Error fetching OS info:', error));
   }, []);
 
   return (
     <Card>
       <Card.Header>{hostname}</Card.Header>
       <Card.Body>
-        {data === 1 ? (
+        {status === 1 ? (
           <Card.Title>Status: Online</Card.Title>
         ) : (
           <Card.Title>Status: Offline</Card.Title>
@@ -29,7 +36,7 @@ export default function FramePC() {
         <Row>
           <PanelPowerControls />
         </Row>
-        {data === 1 && (
+        {status === 1 && os === 'Linux' && (
           <>
             <Row>
               <PanelScripts />
