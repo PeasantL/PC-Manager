@@ -45,15 +45,19 @@ export function startDesktop() {
 }
 
 export function fetchVramUsage() {
-  fetch(process.env.REACT_APP_BACKEND_URL + '/system/vram-usage')
+  return fetch(process.env.REACT_APP_BACKEND_URL + '/system/vram-usage')
     .then(response => {
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
       return response.json();
     })
-    .then(data => console.log('VRAM Usage:', data))
+    .then(data => {
+      console.log('VRAM Usage:', data);
+      return data; // Return the data here
+    })
     .catch(error => {
       console.error('Error fetching VRAM usage:', error);
+      throw error; // Rethrow the error to handle it in the component
     });
 }

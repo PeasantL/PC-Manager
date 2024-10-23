@@ -46,9 +46,16 @@ def wake_on_lan(mac_address: str):
 # Route definitions
 
 @app.get("/health")
-async def health_check():
-    """Check if the master server is running."""
-    return {"status": "ok"}
+async def check_slave_health():
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.get(f"{MAIN_PC_URL}/health")
+            if response.status_code == 200:
+                return {"status": "ok"}
+            else:
+                raise HTTPException(status_code=500, detail="Slave is not healthy")
+    except httpx.RequestError:
+        raise HTTPException(status_code=500, detail="Slave is unreachable")
 
 @router.get("/system/hostname")
 async def get_hostname():

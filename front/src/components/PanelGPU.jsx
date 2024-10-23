@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Card, Alert, Spinner } from 'react-bootstrap';
+import { Container, Card, Alert } from 'react-bootstrap';
 import RadioBasic from './RadioBasic';
 import ButtonBasic from './ButtonBasic';
 import { fetchVramUsage } from '../utils/api';
@@ -42,15 +42,10 @@ export default function PanelGPU() {
           <ButtonBasic 
             text={loading ? 'Refreshing...' : 'Refresh VRAM'}
             onClick={loadVramUsage}
-            disabled={loading}
           />
 
           {/* Display VRAM usage or error message */}
-          {loading ? (
-            <Spinner animation="border" role="status" className="mt-3">
-              <span className="visually-hidden">Loading...</span>
-            </Spinner>
-          ) : error ? (
+          {error ? (
             <Alert variant="danger" className="mt-3">
               Error fetching VRAM usage: {error.message}
             </Alert>

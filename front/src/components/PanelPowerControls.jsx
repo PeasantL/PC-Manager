@@ -1,7 +1,7 @@
 import React from 'react'
 import { Container, Card } from 'react-bootstrap'
 import ButtonBasic from './ButtonBasic'
-import { fetchMessage, shutDownDesktop, startDesktop } from '../utils/api'
+import { shutDownDesktop, startDesktop } from '../utils/api'
 import './Panel.component.css'
 
 export default function PanelPowerControls() {
@@ -13,7 +13,6 @@ export default function PanelPowerControls() {
           <div className="d-grid gap-2">
             <ButtonBasic text="Shut Down Desktop" onClick={shutDownDesktop} />
             <ButtonBasic text="Start Desktop" onClick={startDesktop} />
-            <ButtonBasic text="Test" onClick={fetchMessage} />
           </div>
         </Card.Body>
       </Card>
