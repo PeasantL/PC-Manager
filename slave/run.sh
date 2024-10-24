@@ -23,7 +23,7 @@ else
     echo "requirements.txt not found. Skipping installation."
 fi
 
-# Run the FastAPI server on port 7081
+# Run the FastAPI server on port 7082
 echo "Starting FastAPI server on port 7081..."
 uvicorn server:app --host 0.0.0.0 --port 7082
 
