@@ -11,7 +11,7 @@ export default function PanelScripts() {
     const fetchData = async () => {
       try {
         const response = await fetch(
-          process.env.REACT_APP_BACKEND_URL + '/scripts'
+          '/scripts'
         );
         const result = await response.json();
         setData(result.data); // Adjust to access the 'data' property

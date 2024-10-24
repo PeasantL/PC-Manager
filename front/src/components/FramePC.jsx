@@ -8,17 +8,17 @@ import useHealthCheck from '../hook/useHealthCheck';
 export default function FramePC() {
   const [hostname, setHostname] = useState('PC');
   const [os, setOs] = useState(null); // State for OS info
-  const status = useHealthCheck(process.env.REACT_APP_BACKEND_URL + '/health');
+  const status = useHealthCheck('/health');
 
   useEffect(() => {
     // Fetch hostname when the component mounts
-    fetch(process.env.REACT_APP_BACKEND_URL + '/system/hostname')
+    fetch('/system/hostname')
       .then(response => response.json())
       .then(data => setHostname(data.data.hostname))
       .catch(error => console.error('Error fetching hostname:', error));
 
     // Fetch OS info when the component mounts
-    fetch(process.env.REACT_APP_BACKEND_URL + '/system/os')
+    fetch('/system/os')
       .then(response => response.json())
       .then(data => setOs(data.os))
       .catch(error => console.error('Error fetching OS info:', error));

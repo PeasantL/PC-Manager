@@ -20,6 +20,6 @@ if [ "$1" == "--dev" ]; then
 else
     # Run Uvicorn normally without hot reload for production
     #sudo /home/peasantl/PC-Manager/master/.venv/bin/uvicorn app:app --host 0.0.0.0 --port 80    
-    uvicorn app:app --host 0.0.0.0 --port 80
+    uvicorn app:app --host 0.0.0.0 --port 7082
 
 fi
