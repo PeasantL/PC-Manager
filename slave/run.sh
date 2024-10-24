@@ -25,7 +25,7 @@ fi
 
 # Run the FastAPI server on port 7081
 echo "Starting FastAPI server on port 7081..."
-uvicorn server:app --host 0.0.0.0 --port 7081 --reload
+uvicorn server:app --host 0.0.0.0 --port 7082
 
 # Deactivate the virtual environment after stopping the server
 deactivate
