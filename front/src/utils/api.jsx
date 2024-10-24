@@ -24,7 +24,7 @@ export function shutDownDesktop() {
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ value: 'ValidData' })
+    body: JSON.stringify({ script: 'ValidData' }) // Use 'script' instead of 'value'
   })
   .then(response => response.json())
   .then(data => console.log('Message:', data.message || data))
@@ -37,7 +37,7 @@ export function startDesktop() {
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ value: 'ValidData' })
+    body: JSON.stringify({ script: 'ValidData' })
   })
   .then(response => response.json())
   .then(data => console.log('Message:', data.message || data))

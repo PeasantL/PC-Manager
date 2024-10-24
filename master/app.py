@@ -108,7 +108,7 @@ async def run_script(request: ScriptRequest):
 @router.post("/system/start-desktop")
 async def start_desktop(item: ScriptRequest):
     """Send a Wake-on-LAN packet to start the desktop."""
-    if item.value == "ValidData":
+    if item.script == "ValidData":
         return wake_on_lan(HOST_MAC)
     else:
         raise HTTPException(status_code=400, detail="Invalid data received")
@@ -116,7 +116,7 @@ async def start_desktop(item: ScriptRequest):
 @router.post("/system/shutdown")
 async def shut_down_desktop(item: ScriptRequest):
     """Shut down the desktop via the slave server."""
-    if item.value == 'ValidData':
+    if item.script == 'ValidData':
         try:
             async with httpx.AsyncClient() as client:
                 response = await client.post(f"{MAIN_PC_URL}/system/shutdown")
