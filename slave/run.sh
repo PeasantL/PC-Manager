@@ -23,9 +23,11 @@ else
     echo "requirements.txt not found. Skipping installation."
 fi
 
-# Run the FastAPI server on port 7082
-echo "Starting FastAPI server on port 7081..."
-uvicorn server:app --host 0.0.0.0 --port 7082
-
-# Deactivate the virtual environment after stopping the server
-deactivate
+# Check for the --dev flag
+if [[ "$1" == "--dev" ]]; then
+    echo "Running Server in Development Mode"
+    uvicorn server:app --host 0.0.0.0 --port 7082 --reload
+else
+    echo "Running Server"
+    uvicorn server:app --host 0.0.0.0 --port 7082
+fi

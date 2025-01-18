@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#Check if the activate script exists
+# Check if the activate script exists
 if [ -f "./.venv/bin/activate" ]; then
     source "./.venv/bin/activate"
 else
@@ -9,9 +9,16 @@ else
     source "./.venv/bin/activate"
 fi
 
-echo "Checking Dependancies"
+echo "Checking Dependencies"
 pip install -r requirements.txt
-echo "Running Server"
 
-#sudo /home/peasantl/PC-Manager/master/.venv/bin/uvicorn app:app --host 0.0.0.0 --port 80    
-uvicorn app:app --host 0.0.0.0 --port 80
+# Check for the --dev flag
+if [[ "$1" == "--dev" ]]; then
+    echo "Running Server in Development Mode"
+    export DEV_MODE=true
+    uvicorn app:app --host 0.0.0.0 --port 7081 --reload
+else
+    echo "Running Server in Production Mode"
+    export DEV_MODE=false
+    uvicorn app:app --host 0.0.0.0 --port 80
+fi

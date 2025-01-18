@@ -162,4 +162,17 @@ async def get_os():
         raise HTTPException(status_code=500, detail="Failed to contact the slave server")
 
 app.include_router(router)
-app.mount("/", StaticFiles(directory="build", html=True), name="static")
+
+# Check if the app is running in development mode
+DEV_MODE = os.getenv("DEV_MODE", "false").lower() == "true"
+
+if DEV_MODE:
+    @app.middleware("http")
+    async def add_cors_middleware(request, call_next):
+        """Allow CORS for development mode."""
+        response = await call_next(request)
+        response.headers["Access-Control-Allow-Origin"] = "*"
+        response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
+        return response
+else:
+    app.mount("/", StaticFiles(directory="build", html=True), name="static")
