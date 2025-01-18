@@ -1,45 +1,40 @@
-import React, { useEffect, useState } from 'react';
-import { Container, Card, Alert } from 'react-bootstrap';
-import RadioBasic from './RadioBasic';
-import ButtonBasic from './ButtonBasic';
-import { fetchVramUsage } from '../utils/api';
-import './Panel.component.css';
+import React, { useEffect, useState } from 'react'
+import { Container, Card, Alert } from 'react-bootstrap'
+import ButtonBasic from './ButtonBasic'
+import { fetchVramUsage } from '../utils/api'
+import './Panel.component.css'
 
 export default function PanelGPU() {
-  const [vramUsage, setVramUsage] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [vramUsage, setVramUsage] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
   const loadVramUsage = () => {
-    setLoading(true);
-    setError(null);
+    setLoading(true)
+    setError(null)
 
     fetchVramUsage()
-      .then(data => {
-        setVramUsage(data);
-        setLoading(false);
+      .then((data) => {
+        setVramUsage(data)
+        setLoading(false)
       })
-      .catch(err => {
-        setError(err);
-        setLoading(false);
-      });
-  };
+      .catch((err) => {
+        setError(err)
+        setLoading(false)
+      })
+  }
 
   useEffect(() => {
-    loadVramUsage();
-  }, []);
+    loadVramUsage()
+  }, [])
 
   return (
     <Container className="panel">
       <Card>
         <Card.Header>GPU Power Settings</Card.Header>
         <Card.Body>
-          <div className="d-grid gap-2">
-            <RadioBasic />
-          </div>
-
           {/* Refresh button using ButtonBasic */}
-          <ButtonBasic 
+          <ButtonBasic
             text={loading ? 'Refreshing...' : 'Refresh VRAM'}
             onClick={loadVramUsage}
           />
@@ -52,13 +47,17 @@ export default function PanelGPU() {
           ) : (
             vramUsage && (
               <div className="mt-3">
-                <p><strong>Used VRAM:</strong> {vramUsage.used_vram} MB</p>
-                <p><strong>Total VRAM:</strong> {vramUsage.total_vram} MB</p>
+                <p>
+                  <strong>Used VRAM:</strong> {vramUsage.used_vram} MB
+                </p>
+                <p>
+                  <strong>Total VRAM:</strong> {vramUsage.total_vram} MB
+                </p>
               </div>
             )
           )}
         </Card.Body>
       </Card>
     </Container>
-  );
+  )
 }
