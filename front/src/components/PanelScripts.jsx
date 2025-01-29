@@ -1,32 +1,30 @@
-import React, { useEffect, useState } from 'react';
-import { Container, Card } from 'react-bootstrap';
-import ButtonBasic from './ButtonBasic';
-import { runScript } from '../utils/api';
-import './Panel.component.css';
+import React, { useEffect, useState } from 'react'
+import { Container, Card } from 'react-bootstrap'
+import ButtonBasic from './ButtonBasic'
+import { runScript } from '../utils/api'
+import './Panel.component.css'
 
 export default function PanelScripts() {
-  const [data, setData] = useState(null);
+  const [data, setData] = useState(null)
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(
-          '/scripts'
-        );
-        const result = await response.json();
-        setData(result.data); // Adjust to access the 'data' property
+        const response = await fetch('/scripts')
+        const result = await response.json()
+        setData(result.data) // Adjust to access the 'data' property
       } catch (error) {
-        console.error('Error fetching data:', error);
+        console.error('Error fetching data:', error)
       }
-    };
-    fetchData();
-  }, []);
+    }
+    fetchData()
+  }, [])
 
   return (
     <Container className="panel">
       {data &&
         Object.keys(data).map((folder, index) => (
-          <Card key={index} className="mb-3">
+          <Card key={index}>
             <Card.Header>Scripts: {folder}</Card.Header>
             <Card.Body>
               <div className="d-grid gap-2">
@@ -46,5 +44,5 @@ export default function PanelScripts() {
           </Card>
         ))}
     </Container>
-  );
+  )
 }

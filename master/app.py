@@ -161,6 +161,104 @@ async def get_os():
         logger.error(f"Error contacting slave: {str(e)}")
         raise HTTPException(status_code=500, detail="Failed to contact the slave server")
 
+@router.get("/koboldcpp/models")
+async def get_models():
+    """Get the operating system of the slave server."""
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.get(f"{MAIN_PC_URL}/koboldcpp/models")
+            response.raise_for_status()
+            return response.json()
+    except httpx.HTTPStatusError as exc:
+        logger.error(f"Error fetching OS info: {str(exc)}")
+        raise HTTPException(status_code=exc.response.status_code, detail="Failed to fetch OS info")
+    except Exception as e:
+        logger.error(f"Error contacting slave: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to contact the slave server")
+
+class SetParametersRequest(BaseModel):
+    model_path: str
+    context_length: int
+
+@app.post("/koboldcpp/set-parameters")
+async def set_parameters(payload: SetParametersRequest):
+    try:
+        async with httpx.AsyncClient() as client:
+            # Forward the request to the SLAVE server:
+            response = await client.post(
+                f"{MAIN_PC_URL}/koboldcpp/set-parameters",
+                json=payload.dict()
+            )
+            response.raise_for_status()
+
+        # Return the slave server's response
+        return response.json()
+
+    except httpx.HTTPStatusError as exc:
+        logger.error(f"Error forwarding set-parameters: {str(exc)}")
+        raise HTTPException(
+            status_code=exc.response.status_code,
+            detail="Failed to set parameters on the slave server"
+        )
+    except Exception as e:
+        logger.error(f"Error contacting slave: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to contact the slave server")
+
+class DownloadRequest(BaseModel):
+    hf_model: str
+    branch: str = "main"
+    job_id: str
+
+@router.post("/koboldcpp/download")
+async def start_download(request: DownloadRequest):
+    """
+    Relay a request to the SLAVE server to start downloading the given model.
+    """
+    try:
+        async with httpx.AsyncClient() as client:
+            # Forward the request to the slave's route, e.g. /download/start
+            response = await client.post(
+                f"{MAIN_PC_URL}/download/start",
+                json={
+                    "hf_model": request.hf_model,
+                    "branch": request.branch,
+                    "job_id": request.job_id
+                }
+            )
+            response.raise_for_status()
+            return response.json()
+    except httpx.HTTPStatusError as exc:
+        logger.error(f"Error starting download on slave: {str(exc)}")
+        raise HTTPException(
+            status_code=exc.response.status_code,
+            detail="Failed to start download on the slave server"
+        )
+    except Exception as e:
+        logger.error(f"Error contacting slave: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to contact the slave server")
+
+@router.get("/koboldcpp/download/progress/{job_id}")
+async def get_download_progress(job_id: str):
+    """
+    Fetch the current download progress from the SLAVE server.
+    """
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.get(
+                f"{MAIN_PC_URL}/download/progress/{job_id}"
+            )
+            response.raise_for_status()
+            return response.json()  # e.g. { "filename": "...", "progress_ratio": 0.4, "done": false, "error": null }
+    except httpx.HTTPStatusError as exc:
+        logger.error(f"Error fetching download progress from slave: {str(exc)}")
+        raise HTTPException(
+            status_code=exc.response.status_code,
+            detail="Failed to fetch download progress from the slave server"
+        )
+    except Exception as e:
+        logger.error(f"Error contacting slave: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to contact the slave server")
+
 app.include_router(router)
 
 # Check if the app is running in development mode
