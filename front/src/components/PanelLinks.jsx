@@ -4,7 +4,6 @@ import {
   Card,
   Accordion,
   Form,
-  ProgressBar,
   Row,
   Col,
 } from 'react-bootstrap'
@@ -12,17 +11,11 @@ import ButtonBasic from './ButtonBasic'
 import './Panel.component.css'
 
 export default function PanelLinks() {
-  // For model download
-  const [huggingFaceModel, setHuggingFaceModel] = useState('')
-  const [specificFile, setSpecificFile] = useState('') // NEW: track a specific file
-  const [downloadProgress, setDownloadProgress] = useState(0)
-  const [downloading, setDownloading] = useState(false)
-  const [downloadError, setDownloadError] = useState(null)
-
   // For model selection
   const [models, setModels] = useState([])
   const [selectedModel, setSelectedModel] = useState('')
-  const [contextLength, setContextLength] = useState(8192)
+  const [contextLength, setContextLength] = useState(16384)
+  const [kvCacheQuant, setKvCacheQuant] = useState(0) // Default to FP16 (0)
 
   // Example: fetch available .gguf models on mount
   useEffect(() => {
@@ -39,77 +32,6 @@ export default function PanelLinks() {
       .catch((err) => console.error('Failed to load models:', err))
   }, [])
 
-  // Start the download
-  const startDownload = () => {
-    const jobId = Date.now().toString() // unique identifier for this download job
-    setDownloadProgress(0)
-    setDownloading(true)
-    setDownloadError(null)
-
-    fetch('/koboldcpp/download', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        hf_model: huggingFaceModel,
-        branch: 'main',
-        job_id: jobId,
-        specific_file: specificFile, // <-- Include the specific_file parameter
-      }),
-    })
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error(`HTTP ${res.status} - Download start failed`)
-        }
-        return res.json()
-      })
-      .then(() => {
-        pollProgress(jobId)
-      })
-      .catch((err) => {
-        console.error('Error starting download:', err)
-        setDownloadError(err.message)
-        setDownloading(false)
-      })
-  }
-
-  // Poll the download progress
-  const pollProgress = (jobId) => {
-    const intervalId = setInterval(() => {
-      fetch(`/koboldcpp/download/progress/${jobId}`)
-        .then((res) => {
-          if (!res.ok) {
-            throw new Error(`HTTP ${res.status} - Can't get progress`)
-          }
-          return res.json()
-        })
-        .then((data) => {
-          // data might look like:
-          // { filename: "...", progress_ratio: 0.45, done: false, error: null }
-
-          if (data.error) {
-            setDownloadError(data.error)
-            setDownloading(false)
-            clearInterval(intervalId)
-            return
-          }
-
-          const percentage = Math.round((data.progress_ratio || 0) * 100)
-          setDownloadProgress(percentage)
-
-          if (data.done) {
-            setDownloading(false)
-            clearInterval(intervalId)
-          }
-        })
-        .catch((err) => {
-          console.error('Error polling progress:', err)
-          setDownloadError(err.message)
-          setDownloading(false)
-          clearInterval(intervalId)
-        })
-    }, 2000)
-  }
-
   // Model Select radio group handling
   const handleModelChange = (modelPath) => {
     setSelectedModel(modelPath)
@@ -122,6 +44,7 @@ export default function PanelLinks() {
       body: JSON.stringify({
         model_path: selectedModel,
         context_length: contextLength,
+        kv_cache_quant: kvCacheQuant,
       }),
     })
       .then((res) => {
@@ -150,52 +73,6 @@ export default function PanelLinks() {
         <Card.Header>Model Control</Card.Header>
         <Card.Body>
           <div className="d-grid gap-2">
-            {/* -------------- Model Download Section -------------- */}
-            <Accordion>
-              <Accordion.Header>Model Download</Accordion.Header>
-              <Accordion.Body>
-                <Row>
-                  <Form>
-                    <Form.Group className="mb-3">
-                      <Form.Label>Hugging Face Address</Form.Label>
-                      <Form.Control
-                        type="text"
-                        placeholder="unsloth/DeepSeek-R1-Distill-Qwen-1.5B-GGUF"
-                        value={huggingFaceModel}
-                        onChange={(e) => setHuggingFaceModel(e.target.value)}
-                      />
-                    </Form.Group>
-
-                    {/* NEW: Specific file text input */}
-                    <Form.Group className="mb-3">
-                      <Form.Label>Specific File (optional)</Form.Label>
-                      <Form.Control
-                        type="text"
-                        placeholder="DeepSeek-R1-Distill-Qwen-1.5B-Q2_K.gguf"
-                        value={specificFile}
-                        onChange={(e) => setSpecificFile(e.target.value)}
-                      />
-                    </Form.Group>
-                  </Form>
-                </Row>
-                <Row className="mt-2">
-                  <Col>
-                    <ButtonBasic text="Download" onClick={startDownload} />
-                  </Col>
-                  <Col>
-                    <ProgressBar
-                      now={downloadProgress}
-                      label={`${downloadProgress}%`}
-                    />
-                  </Col>
-                </Row>
-                {downloading && <div>Downloading...</div>}
-                {downloadError && (
-                  <div style={{ color: 'red' }}>Error: {downloadError}</div>
-                )}
-              </Accordion.Body>
-            </Accordion>
-
             {/* -------------- Model Select Section -------------- */}
             <Accordion>
               <Accordion.Header>Model Select</Accordion.Header>
@@ -216,38 +93,48 @@ export default function PanelLinks() {
                   ))}
                 </Form>
 
-                {/* Three radio buttons for context length */}
-                <Form className="mt-3">
-                  <Form.Group>
-                    <Form.Label>Context Length</Form.Label>
-                    <div>
-                      <Form.Check
-                        type="radio"
-                        name="contextLength"
-                        label="8192"
-                        value="8192"
-                        checked={contextLength === 8192}
-                        onChange={() => setContextLength(8192)}
-                      />
-                      <Form.Check
-                        type="radio"
-                        name="contextLength"
-                        label="15360"
-                        value="15360"
-                        checked={contextLength === 15360}
-                        onChange={() => setContextLength(15360)}
-                      />
-                      <Form.Check
-                        type="radio"
-                        name="contextLength"
-                        label="20480"
-                        value="20480"
-                        checked={contextLength === 20480}
-                        onChange={() => setContextLength(20480)}
-                      />
-                    </div>
-                  </Form.Group>
-                </Form>
+                {/* Context Length Slider */}
+                <Form.Group className="mt-3">
+                  <Form.Label>Context Length: {contextLength}</Form.Label>
+                  <Form.Range
+                    min={8192}
+                    max={32768}
+                    step={1024}
+                    value={contextLength}
+                    onChange={(e) => setContextLength(Number(e.target.value))}
+                  />
+                </Form.Group>
+
+                {/* KV Cache Quant Radio */}
+                <Form.Group className="mt-3">
+                  <Form.Label>KV Cache Quant</Form.Label>
+                  <div>
+                    <Form.Check
+                      type="radio"
+                      name="kvCacheQuant"
+                      label="FP16"
+                      value={0}
+                      checked={kvCacheQuant === 0}
+                      onChange={() => setKvCacheQuant(0)}
+                    />
+                    <Form.Check
+                      type="radio"
+                      name="kvCacheQuant"
+                      label="Q8"
+                      value={1}
+                      checked={kvCacheQuant === 1}
+                      onChange={() => setKvCacheQuant(1)}
+                    />
+                    <Form.Check
+                      type="radio"
+                      name="kvCacheQuant"
+                      label="Q4"
+                      value={2}
+                      checked={kvCacheQuant === 2}
+                      onChange={() => setKvCacheQuant(2)}
+                    />
+                  </div>
+                </Form.Group>
 
                 <ButtonBasic
                   text="Set Parameters"
