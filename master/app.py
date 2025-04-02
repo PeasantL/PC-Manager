@@ -21,6 +21,7 @@ USER = config['network'].get('user')
 HOST = config['network'].get('host')
 HOST_MAC = config['network'].get('host_mac')
 PORT = config['network'].get('port')
+MONITOR_IP = config['network'].get('monitor_ip')
 
 # Construct MAIN_PC_URL dynamically
 MAIN_PC_URL = f"http://{HOST}:{PORT}"
@@ -38,7 +39,6 @@ ping_check_active = False
 shutdown_monitor_task = None
 
 # The specific IP address to monitor
-MONITOR_IP = "192.168.0.11"
 
 async def ping_host(host):
     """Ping a host and return True if reachable, False otherwise."""

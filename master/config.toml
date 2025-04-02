@@ -3,3 +3,4 @@ user = "peasantl"
 host = "192.168.0.10"
 host_mac = "18:C0:4D:89:82:94"
 port = 7082
+monitor_ip = "192.168.0.11"
