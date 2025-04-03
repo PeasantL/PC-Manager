@@ -20,5 +20,5 @@ if [[ "$1" == "--dev" ]]; then
 else
     echo "Running Server in Production Mode"
     export DEV_MODE=false
-    uvicorn app:app --host 0.0.0.0 --port 80
+    uvicorn app:app --host 0.0.0.0 --port 808
 fi
