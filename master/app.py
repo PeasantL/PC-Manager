@@ -8,6 +8,10 @@ import toml
 import socket
 import struct
 import logging
+import asyncio
+import aioping
+import datetime
+import time 
 
 # Load configuration from config.toml
 config = toml.load('config.toml')
@@ -17,6 +21,7 @@ USER = config['network'].get('user')
 HOST = config['network'].get('host')
 HOST_MAC = config['network'].get('host_mac')
 PORT = config['network'].get('port')
+MONITOR_IP = config['network'].get('monitor_ip')
 
 # Construct MAIN_PC_URL dynamically
 MAIN_PC_URL = f"http://{HOST}:{PORT}"
@@ -27,6 +32,94 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI()
 router = APIRouter()
+
+# Global variables to track failed ping attempts
+failed_ping_count = 0
+ping_check_active = False
+shutdown_monitor_task = None
+
+# The specific IP address to monitor
+
+async def ping_host(host):
+    """Ping a host and return True if reachable, False otherwise."""
+    try:
+        await aioping.ping(host, timeout=2)
+        return True
+    except TimeoutError:
+        return False
+    except Exception as e:
+        logger.error(f"Error pinging host {host}: {str(e)}")
+        return False
+
+async def check_and_shutdown():
+    """Periodically check if PC should be shut down during inactive hours."""
+    global failed_ping_count, ping_check_active
+    
+    ping_check_active = True
+    try:
+        while True:
+            # Wait 10 minutes between checks
+            await asyncio.sleep(600)  # 10 minutes = 600 seconds
+            
+            # Get current time
+            now = datetime.datetime.now()
+            current_hour = now.hour
+            
+            # Check if time is between 1AM and 5AM
+            if 1 <= current_hour < 5:
+                logger.info(f"Running scheduled check at {now.strftime('%H:%M:%S')}")
+                
+                # Ping the specified IP address (192.168.0.11)
+                host_reachable = await ping_host(MONITOR_IP)
+                
+                if not host_reachable:
+                    failed_ping_count += 1
+                    logger.warning(f"Failed to ping {MONITOR_IP}. Failure count: {failed_ping_count}")
+                else:
+                    # Reset counter if ping succeeds
+                    if failed_ping_count > 0:
+                        logger.info(f"Successfully pinged {MONITOR_IP}. Resetting failure counter.")
+                        failed_ping_count = 0
+                
+                # If we've failed 3 times in a row, shut down the PC
+                if failed_ping_count >= 3:
+                    logger.warning(f"Failed to ping {MONITOR_IP} three times in a row. Initiating shutdown.")
+                    try:
+                        # Attempt to gracefully shut down the PC
+                        async with httpx.AsyncClient() as client:
+                            shutdown_request = ScriptRequest(script="ValidData")
+                            await shut_down_desktop(shutdown_request)
+                            logger.info("Shutdown command sent successfully")
+                            
+                        # Reset the counter after shutdown attempt
+                        failed_ping_count = 0
+                    except Exception as e:
+                        logger.error(f"Failed to shut down PC: {str(e)}")
+            else:
+                # Reset counter outside of check hours
+                failed_ping_count = 0
+    except Exception as e:
+        logger.error(f"Error in shutdown monitor: {str(e)}")
+        ping_check_active = False
+
+@app.on_event("startup")
+async def startup_event():
+    """Start the shutdown monitor when the application starts."""
+    global shutdown_monitor_task
+    logger.info("Starting automatic shutdown monitor")
+    shutdown_monitor_task = asyncio.create_task(check_and_shutdown())
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    """Clean up the shutdown monitor task when the application shuts down."""
+    global shutdown_monitor_task
+    if shutdown_monitor_task:
+        shutdown_monitor_task.cancel()
+        try:
+            await shutdown_monitor_task
+        except asyncio.CancelledError:
+            pass
+        logger.info("Shutdown monitor stopped")
 
 # Utility function for Wake-on-LAN
 def wake_on_lan(mac_address: str):

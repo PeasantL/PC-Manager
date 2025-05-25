@@ -1,0 +1,13 @@
+version: '3'
+
+services:
+  master-app:
+    build: .
+    container_name: pc-manager-master  # Custom container name
+    ports:
+      - "808:808"
+    volumes:
+      - ./config.toml:/app/config.toml
+    restart: unless-stopped
+    environment:
+      - DEV_MODE=false
